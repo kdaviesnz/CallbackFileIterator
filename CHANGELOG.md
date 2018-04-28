@@ -7,7 +7,8 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 ## NEXT - YYYY-MM-DD
 
 ### Added
-- Nothing
+- Parallel processing. 2018-04-28
+- run() method. 2018-04-28
 
 ### Deprecated
 - Nothing
@@ -16,7 +17,7 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 - Nothing
 
 ### Removed
-- Nothing
+- Removed constructor. 2018-04-28
 
 ### Security
 - Nothing

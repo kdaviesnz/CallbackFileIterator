@@ -10,37 +10,41 @@ namespace kdaviesnz\callbackfileiterator;
 class CallbackFileIterator
 {
 
-	/**
-	 * CallbackFileIterator constructor.
-	 *
-	 * @param string $rootDirectory
-	 * @param callable $callback
-	 * @param bool $recursive
-	 */
-	public function __construct(string $rootDirectory, Callable $callback, bool $recursive)
+    public function run(string $rootDirectory, Callable $callback, bool $recursive, bool $parallel)
     {
-    	 $this->parseFiles($rootDirectory, $callback, $recursive);
+        $files = $this->parseFiles($rootDirectory, $recursive);
+
+        if ($parallel) {
+            \Amp\Promise\wait(\Amp\ParallelFunctions\parallelMap($files, $callback));
+        } else {
+            array_walk($files, $callback);
+        }
+
     }
 
 	/**
 	 * @param string $currentDirectory
-	 * @param callable $callback
 	 * @param bool $recursive
 	 */
-	private function parseFiles(string $currentDirectory, Callable $callback, bool $recursive)
+	private function parseFiles(string $currentDirectory, bool $recursive):array
     {
+        $files = [];
+
 	    foreach (new \DirectoryIterator($currentDirectory) as $fileobject) {
 
+	        // Skip if dot.
 		    if($fileobject->isDot()) continue;
 
+		    // Skip if directory
 		    if ($fileobject->isDir() && $recursive) {
-			    $this->parseFiles($fileobject->getPathname(), $callback, $recursive);
+			    $files = array_merge($files, $this->parseFiles($fileobject->getPathname(), $recursive));
 		    }
 
 		    if ($fileobject->isFile()) {
-		    	$callback($fileobject->getPathname());
+                $files[] = $fileobject->getPathname();
 		    }
-
 	    }
+
+	    return $files;
     }
 }

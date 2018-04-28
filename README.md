@@ -1,6 +1,8 @@
-# componentname
+# CallbackFileIterator
 
-Extremely simple class that iterators over files and applies a user-defined callback.
+Class that iterators over files and applies a user-defined callback.
+
+Note that using the parallel processing option may not necessarily result in faster times. It all depends on how slow the callback is.
 
 ## Install
 
@@ -14,15 +16,37 @@ $ composer require kdaviesnz/callbackfileiterator
 
 ``` php
 
+        require_once("vendor/autoload.php");
+        require_once("src/CallbackFileIterator.php");
+
 		require_once("src/CallbackFileIterator.php");
-		// The callback that is passed to CallbackFileIterator should be a function 
-		// that takes the name of the current file as the one and only parameter.
 		$callback = function() {
 			return function(string $filename) {
 				echo $filename . "\n";
+				sleep (1);
 			};
 		};
-		$callbackIterator = new CallbackFileIterator("src", $callback(), true);
+
+        $callbackIterator = new CallbackFileIterator();
+        $recursive = true;
+        $parallel = true;
+
+        // Parallel
+        $parallelStartTime = \microtime(true);
+        $callbackIterator->run(".", $callback(), $recursive, $parallel);
+        $parallelEndTime = \microtime(true);
+
+        // Non parallel
+        $nonParallelStartTime = \microtime(true);
+        $callbackIterator->run(".", $callback(), $recursive, $parallel);
+        $nonParallelEndTime = \microtime(true);
+
+        $parallelTime = $parallelEndTime - $parallelStartTime;
+        $nonParallelTime = $nonParallelEndTime - $nonParallelStartTime;
+
+        echo "Parallel took $parallelTime ms\n";
+        echo "Non parallel took $nonParallelTime ms\n";
+
 
 ```
 
